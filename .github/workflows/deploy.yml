@@ -3,7 +3,7 @@ name: Deploy to NGINX
 on:
   push:
     branches:
-      - main  # Change if needed
+      - main  # Change to 'master' if your repo uses 'master'
 
 jobs:
   deploy:
