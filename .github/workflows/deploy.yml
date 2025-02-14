@@ -1,24 +1,25 @@
-name: Deploy to Server
+name: Deploy to NGINX
 
 on:
   push:
     branches:
-      - main
+      - main  # Change if needed
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-    - name: Copy files via SSH
-      run: |
-        ssh user@your_server_ip "rm -rf /var/www/html/*"
-        scp -r * user@your_server_ip:/var/www/html/
+      - name: Deploy index.html to VM
+        run: |
+          scp -i ~/.ssh/id_rsa index.html ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/html/index.html
